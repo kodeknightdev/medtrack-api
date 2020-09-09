@@ -1,0 +1,29 @@
+## .NET / Visual Studio
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+*.rsuser
+
+## Rider / VS Code
+.idea/
+.vscode/
+*.sln.iml
+
+## Test results
+[Tt]est[Rr]esult*/
+*.trx
+coverage*.json
+coverage*.xml
+
+## Misc
+*.log
+.DS_Store
+appsettings.*.local.json
