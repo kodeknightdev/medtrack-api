@@ -49,5 +49,43 @@ namespace MedTrack.Api.Controllers
 
             return CreatedAtAction(nameof(Get), new { id = entry.Id }, entry);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, SymptomEntry entry)
+        {
+            if (id != entry.Id)
+            {
+                return BadRequest();
+            }
+
+            var existing = await _context.SymptomEntries.FindAsync(id);
+            if (existing == null)
+            {
+                return NotFound();
+            }
+
+            existing.Name = entry.Name;
+            existing.Severity = entry.Severity;
+            existing.Notes = entry.Notes;
+            existing.OccurredAt = entry.OccurredAt;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var entry = await _context.SymptomEntries.FindAsync(id);
+            if (entry == null)
+            {
+                return NotFound();
+            }
+
+            _context.SymptomEntries.Remove(entry);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
