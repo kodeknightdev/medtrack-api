@@ -11,6 +11,7 @@ namespace MedTrack.Api.Data
         }
 
         public DbSet<SymptomEntry> SymptomEntries { get; set; }
+        public DbSet<Medication> Medications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -18,6 +19,13 @@ namespace MedTrack.Api.Data
             {
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Notes).HasMaxLength(1000);
+            });
+
+            modelBuilder.Entity<Medication>(entity =>
+            {
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Dosage).HasMaxLength(50);
+                entity.Property(e => e.Instructions).HasMaxLength(500);
             });
         }
     }
