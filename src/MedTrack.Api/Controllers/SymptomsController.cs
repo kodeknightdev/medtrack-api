@@ -39,5 +39,15 @@ namespace MedTrack.Api.Controllers
 
             return entry;
         }
+
+        [HttpPost]
+        public async Task<ActionResult<SymptomEntry>> Create(SymptomEntry entry)
+        {
+            entry.CreatedAt = DateTime.UtcNow;
+            _context.SymptomEntries.Add(entry);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(Get), new { id = entry.Id }, entry);
+        }
     }
 }
