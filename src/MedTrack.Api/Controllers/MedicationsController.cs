@@ -100,7 +100,7 @@ namespace MedTrack.Api.Controllers
 
             return candidates
                 .Where(m => m.ReminderTime <= now.TimeOfDay
-                    && (m.LastTakenAt == null || m.LastTakenAt.Value.Date < now.Date))
+                    && (m.LastTakenAt == null || m.LastTakenAt.Value.ToLocalTime().Date < now.Date))
                 .OrderBy(m => m.ReminderTime)
                 .ToList();
         }
