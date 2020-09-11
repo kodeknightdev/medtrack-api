@@ -88,5 +88,17 @@ namespace MedTrack.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("upcoming")]
+        public async Task<ActionResult<IEnumerable<Appointment>>> GetUpcoming(int days = 14)
+        {
+            var from = DateTime.UtcNow;
+            var to = from.AddDays(days);
+
+            return await _context.Appointments
+                .Where(a => a.StartsAt >= from && a.StartsAt <= to)
+                .OrderBy(a => a.StartsAt)
+                .ToListAsync();
+        }
     }
 }
