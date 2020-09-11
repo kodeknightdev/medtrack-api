@@ -40,10 +40,16 @@ namespace MedTrack.Api.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
 
+                    b.Property<DateTime?>("LastTakenAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
+
+                    b.Property<TimeSpan?>("ReminderTime")
+                        .HasColumnType("time");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");

@@ -69,6 +69,7 @@ namespace MedTrack.Api.Controllers
             existing.StartDate = medication.StartDate;
             existing.EndDate = medication.EndDate;
             existing.Active = medication.Active;
+            existing.ReminderTime = medication.ReminderTime;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -84,6 +85,36 @@ namespace MedTrack.Api.Controllers
             }
 
             _context.Medications.Remove(medication);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpGet("due")]
+        public async Task<ActionResult<IEnumerable<Medication>>> GetDue()
+        {
+            var now = DateTime.Now;
+            var candidates = await _context.Medications
+                .Where(m => m.Active && m.ReminderTime != null)
+                .ToListAsync();
+
+            return candidates
+                .Where(m => m.ReminderTime <= now.TimeOfDay
+                    && (m.LastTakenAt == null || m.LastTakenAt.Value.Date < now.Date))
+                .OrderBy(m => m.ReminderTime)
+                .ToList();
+        }
+
+        [HttpPost("{id}/taken")]
+        public async Task<IActionResult> MarkTaken(int id)
+        {
+            var medication = await _context.Medications.FindAsync(id);
+            if (medication == null)
+            {
+                return NotFound();
+            }
+
+            medication.LastTakenAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             return NoContent();

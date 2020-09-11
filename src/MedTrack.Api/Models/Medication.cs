@@ -11,5 +11,9 @@ namespace MedTrack.Api.Models
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public bool Active { get; set; } = true;
+        
+        // time of day the reminder should fire, local to the user
+        public TimeSpan? ReminderTime { get; set; }
+        public DateTime? LastTakenAt { get; set; }
     }
 }
