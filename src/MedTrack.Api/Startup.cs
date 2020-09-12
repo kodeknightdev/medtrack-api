@@ -10,6 +10,8 @@ namespace MedTrack.Api
 {
     public class Startup
     {
+        private const string DevCorsPolicy = "LocalAngular";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -23,6 +25,14 @@ namespace MedTrack.Api
 
             services.AddDbContext<MedTrackContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("MedTrack")));
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(DevCorsPolicy, policy =>
+                    policy.WithOrigins("http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -35,6 +45,8 @@ namespace MedTrack.Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(DevCorsPolicy);
 
             app.UseAuthorization();
 
