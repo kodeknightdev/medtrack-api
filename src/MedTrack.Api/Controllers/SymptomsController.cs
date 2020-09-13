@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MedTrack.Api.Data;
+using MedTrack.Api.Dtos;
 using MedTrack.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,15 +22,16 @@ namespace MedTrack.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SymptomEntry>>> GetAll()
+        public async Task<ActionResult<IEnumerable<SymptomEntryDto>>> GetAll()
         {
             return await _context.SymptomEntries
                 .OrderByDescending(x => x.OccurredAt)
+                .Select(x => x.ToDto())
                 .ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SymptomEntry>> Get(int id)
+        public async Task<ActionResult<SymptomEntryDto>> Get(int id)
         {
             var entry = await _context.SymptomEntries.FindAsync(id);
             if (entry == null)
@@ -37,37 +39,34 @@ namespace MedTrack.Api.Controllers
                 return NotFound();
             }
 
-            return entry;
+            return entry.ToDto();
         }
 
         [HttpPost]
-        public async Task<ActionResult<SymptomEntry>> Create(SymptomEntry entry)
+        public async Task<ActionResult<SymptomEntryDto>> Create(SaveSymptomEntryRequest request)
         {
-            entry.CreatedAt = DateTime.UtcNow;
+            var entry = new SymptomEntry
+            {
+                CreatedAt = DateTime.UtcNow
+            };
+            request.ApplyTo(entry);
+
             _context.SymptomEntries.Add(entry);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = entry.Id }, entry);
+            return CreatedAtAction(nameof(Get), new { id = entry.Id }, entry.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, SymptomEntry entry)
+        public async Task<IActionResult> Update(int id, SaveSymptomEntryRequest request)
         {
-            if (id != entry.Id)
-            {
-                return BadRequest();
-            }
-
             var existing = await _context.SymptomEntries.FindAsync(id);
             if (existing == null)
             {
                 return NotFound();
             }
 
-            existing.Name = entry.Name;
-            existing.Severity = entry.Severity;
-            existing.Notes = entry.Notes;
-            existing.OccurredAt = entry.OccurredAt;
+            request.ApplyTo(existing);
             await _context.SaveChangesAsync();
 
             return NoContent();
