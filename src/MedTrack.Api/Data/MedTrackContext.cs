@@ -13,6 +13,7 @@ namespace MedTrack.Api.Data
         public DbSet<SymptomEntry> SymptomEntries { get; set; }
         public DbSet<Medication> Medications { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +36,13 @@ namespace MedTrack.Api.Data
                 entity.Property(e => e.Provider).HasMaxLength(100);
                 entity.Property(e => e.Location).HasMaxLength(200);
                 entity.Property(e => e.Notes).HasMaxLength(1000);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.PasswordHash).IsRequired();
+                entity.HasIndex(e => e.Email).IsUnique();
             });
         }
     }
