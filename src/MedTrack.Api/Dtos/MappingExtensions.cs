@@ -49,5 +49,26 @@ namespace MedTrack.Api.Dtos
                 ? (TimeSpan?)null
                 : TimeSpan.ParseExact(request.ReminderTime, @"hh\:mm", CultureInfo.InvariantCulture);
         }
+
+        public static AppointmentDto ToDto(this Appointment appointment) => new AppointmentDto
+        {
+            Id = appointment.Id,
+            Title = appointment.Title,
+            Provider = appointment.Provider,
+            Location = appointment.Location,
+            StartsAt = appointment.StartsAt,
+            EndsAt = appointment.EndsAt,
+            Notes = appointment.Notes
+        };
+
+        public static void ApplyTo(this SaveAppointmentRequest request, Appointment appointment)
+        {
+            appointment.Title = request.Title;
+            appointment.Provider = request.Provider;
+            appointment.Location = request.Location;
+            appointment.StartsAt = request.StartsAt;
+            appointment.EndsAt = request.EndsAt;
+            appointment.Notes = request.Notes;
+        }
     }
 }

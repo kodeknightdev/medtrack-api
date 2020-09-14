@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MedTrack.Api.Data;
+using MedTrack.Api.Dtos;
 using MedTrack.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,15 +22,16 @@ namespace MedTrack.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetAll()
+        public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAll()
         {
             return await _context.Appointments
                 .OrderBy(x => x.StartsAt)
+                .Select(x => x.ToDto())
                 .ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Appointment>> Get(int id)
+        public async Task<ActionResult<AppointmentDto>> Get(int id)
         {
             var appointment = await _context.Appointments.FindAsync(id);
             if (appointment == null)
@@ -37,38 +39,31 @@ namespace MedTrack.Api.Controllers
                 return NotFound();
             }
 
-            return appointment;
+            return appointment.ToDto();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Appointment>> Create(Appointment appointment)
+        public async Task<ActionResult<AppointmentDto>> Create(SaveAppointmentRequest request)
         {
+            var appointment = new Appointment();
+            request.ApplyTo(appointment);
+
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Get), new { id = appointment.Id }, appointment);
+            return CreatedAtAction(nameof(Get), new { id = appointment.Id }, appointment.ToDto());
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Appointment appointment)
+        public async Task<IActionResult> Update(int id, SaveAppointmentRequest request)
         {
-            if (id != appointment.Id)
-            {
-                return BadRequest();
-            }
-
             var existing = await _context.Appointments.FindAsync(id);
             if (existing == null)
             {
                 return NotFound();
             }
 
-            existing.Title = appointment.Title;
-            existing.Provider = appointment.Provider;
-            existing.Location = appointment.Location;
-            existing.StartsAt = appointment.StartsAt;
-            existing.EndsAt = appointment.EndsAt;
-            existing.Notes = appointment.Notes;
+            request.ApplyTo(existing);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -90,7 +85,7 @@ namespace MedTrack.Api.Controllers
         }
 
         [HttpGet("upcoming")]
-        public async Task<ActionResult<IEnumerable<Appointment>>> GetUpcoming(int days = 14)
+        public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetUpcoming(int days = 14)
         {
             var from = DateTime.UtcNow;
             var to = from.AddDays(days);
@@ -98,6 +93,7 @@ namespace MedTrack.Api.Controllers
             return await _context.Appointments
                 .Where(a => a.StartsAt >= from && a.StartsAt <= to)
                 .OrderBy(a => a.StartsAt)
+                .Select(x => x.ToDto())
                 .ToListAsync();
         }
     }
