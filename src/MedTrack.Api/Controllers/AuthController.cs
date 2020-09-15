@@ -15,15 +15,17 @@ namespace MedTrack.Api.Controllers
     {
         private readonly MedTrackContext _context;
         private readonly IPasswordHasher _hasher;
+        private readonly ITokenService _tokens;
 
-        public AuthController(MedTrackContext context, IPasswordHasher hasher)
+        public AuthController(MedTrackContext context, IPasswordHasher hasher, ITokenService tokens)
         {
             _context = context;
             _hasher = hasher;
+            _tokens = tokens;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
         {
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
@@ -39,7 +41,19 @@ namespace MedTrack.Api.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return StatusCode(201);
+            return _tokens.CreateToken(user);
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
+            if (user == null || !_hasher.Verify(request.Password, user.PasswordHash))
+            {
+                return Unauthorized();
+            }
+
+            return _tokens.CreateToken(user);
         }
     }
 }
