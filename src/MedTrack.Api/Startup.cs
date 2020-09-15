@@ -1,4 +1,5 @@
 using MedTrack.Api.Data;
+using MedTrack.Api.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,8 @@ namespace MedTrack.Api
                         .AllowAnyHeader()
                         .AllowAnyMethod());
             });
+
+            services.AddSingleton<IPasswordHasher, PasswordHasher>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
