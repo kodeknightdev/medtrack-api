@@ -11,5 +11,8 @@ namespace MedTrack.Api.Models
         public DateTime StartsAt { get; set; }
         public DateTime EndsAt { get; set; }
         public string Notes { get; set; }
+
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 }

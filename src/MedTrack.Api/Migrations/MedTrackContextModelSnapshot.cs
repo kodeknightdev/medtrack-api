@@ -49,7 +49,12 @@ namespace MedTrack.Api.Migrations
                         .HasColumnType("nvarchar(150)")
                         .HasMaxLength(150);
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Appointments");
                 });
@@ -89,7 +94,12 @@ namespace MedTrack.Api.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Medications");
                 });
@@ -119,7 +129,12 @@ namespace MedTrack.Api.Migrations
                     b.Property<int>("Severity")
                         .HasColumnType("int");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("SymptomEntries");
                 });
@@ -149,6 +164,33 @@ namespace MedTrack.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MedTrack.Api.Models.Appointment", b =>
+                {
+                    b.HasOne("MedTrack.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedTrack.Api.Models.Medication", b =>
+                {
+                    b.HasOne("MedTrack.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MedTrack.Api.Models.SymptomEntry", b =>
+                {
+                    b.HasOne("MedTrack.Api.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

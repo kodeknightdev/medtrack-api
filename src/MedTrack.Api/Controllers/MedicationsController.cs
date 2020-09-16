@@ -4,13 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using MedTrack.Api.Data;
 using MedTrack.Api.Dtos;
+using MedTrack.Api.Extensions;
 using MedTrack.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedTrack.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class MedicationsController : ControllerBase
     {
@@ -24,7 +27,9 @@ namespace MedTrack.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MedicationDto>>> GetAll()
         {
+            var userId = User.GetUserId();
             return await _context.Medications
+                .Where(x => x.UserId == userId)
                 .OrderBy(x => x.Name)
                 .Select(x => x.ToDto())
                 .ToListAsync();
@@ -33,7 +38,8 @@ namespace MedTrack.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<MedicationDto>> Get(int id)
         {
-            var medication = await _context.Medications.FindAsync(id);
+            var userId = User.GetUserId();
+            var medication = await _context.Medications.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
             if (medication == null)
             {
                 return NotFound();
@@ -45,7 +51,10 @@ namespace MedTrack.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<MedicationDto>> Create(SaveMedicationRequest request)
         {
-            var medication = new Medication();
+            var medication = new Medication
+            {
+                UserId = userId
+            };
             request.ApplyTo(medication);
 
             _context.Medications.Add(medication);
@@ -57,7 +66,8 @@ namespace MedTrack.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, SaveMedicationRequest request)
         {
-            var existing = await _context.Medications.FindAsync(id);
+            var userId = User.GetUserId();
+            var existing = await _context.Medications.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
             if (existing == null)
             {
                 return NotFound();
@@ -72,7 +82,8 @@ namespace MedTrack.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var medication = await _context.Medications.FindAsync(id);
+            var userId = User.GetUserId();
+            var medication = await _context.Medications.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
             if (medication == null)
             {
                 return NotFound();
@@ -87,8 +98,10 @@ namespace MedTrack.Api.Controllers
         [HttpGet("due")]
         public async Task<ActionResult<IEnumerable<MedicationDto>>> GetDue()
         {
+            var userId = User.GetUserId();
             var now = DateTime.Now;
             var candidates = await _context.Medications
+                .Where(x => x.UserId == userId)
                 .Where(m => m.Active && m.ReminderTime != null)
                 .ToListAsync();
 
@@ -103,7 +116,8 @@ namespace MedTrack.Api.Controllers
         [HttpPost("{id}/taken")]
         public async Task<IActionResult> MarkTaken(int id)
         {
-            var medication = await _context.Medications.FindAsync(id);
+            var userId = User.GetUserId();
+            var medication = await _context.Medications.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
             if (medication == null)
             {
                 return NotFound();

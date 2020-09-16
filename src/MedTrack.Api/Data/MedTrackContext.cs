@@ -21,6 +21,10 @@ namespace MedTrack.Api.Data
             {
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Notes).HasMaxLength(1000);
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId);
             });
 
             modelBuilder.Entity<Medication>(entity =>
@@ -28,6 +32,10 @@ namespace MedTrack.Api.Data
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Dosage).HasMaxLength(50);
                 entity.Property(e => e.Instructions).HasMaxLength(500);
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId);
             });
 
             modelBuilder.Entity<Appointment>(entity =>
@@ -36,6 +44,10 @@ namespace MedTrack.Api.Data
                 entity.Property(e => e.Provider).HasMaxLength(100);
                 entity.Property(e => e.Location).HasMaxLength(200);
                 entity.Property(e => e.Notes).HasMaxLength(1000);
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId);
             });
 
             modelBuilder.Entity<User>(entity =>

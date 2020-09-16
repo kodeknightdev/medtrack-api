@@ -15,5 +15,8 @@ namespace MedTrack.Api.Models
         // time of day the reminder should fire, local to the user
         public TimeSpan? ReminderTime { get; set; }
         public DateTime? LastTakenAt { get; set; }
+
+        public int UserId { get; set; }
+        public User User { get; set; }
     }
 }

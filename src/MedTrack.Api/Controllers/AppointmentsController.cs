@@ -4,13 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using MedTrack.Api.Data;
 using MedTrack.Api.Dtos;
+using MedTrack.Api.Extensions;
 using MedTrack.Api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedTrack.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class AppointmentsController : ControllerBase
     {
@@ -24,7 +27,9 @@ namespace MedTrack.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetAll()
         {
+            var userId = User.GetUserId();
             return await _context.Appointments
+                .Where(x => x.UserId == userId)
                 .OrderBy(x => x.StartsAt)
                 .Select(x => x.ToDto())
                 .ToListAsync();
@@ -33,7 +38,8 @@ namespace MedTrack.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AppointmentDto>> Get(int id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            var userId = User.GetUserId();
+            var appointment = await _context.Appointments.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
             if (appointment == null)
             {
                 return NotFound();
@@ -45,7 +51,10 @@ namespace MedTrack.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<AppointmentDto>> Create(SaveAppointmentRequest request)
         {
-            var appointment = new Appointment();
+            var appointment = new Appointment
+            {
+                UserId = userId
+            };
             request.ApplyTo(appointment);
 
             _context.Appointments.Add(appointment);
@@ -57,7 +66,8 @@ namespace MedTrack.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, SaveAppointmentRequest request)
         {
-            var existing = await _context.Appointments.FindAsync(id);
+            var userId = User.GetUserId();
+            var existing = await _context.Appointments.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
             if (existing == null)
             {
                 return NotFound();
@@ -72,7 +82,8 @@ namespace MedTrack.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            var userId = User.GetUserId();
+            var appointment = await _context.Appointments.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
             if (appointment == null)
             {
                 return NotFound();
@@ -87,10 +98,12 @@ namespace MedTrack.Api.Controllers
         [HttpGet("upcoming")]
         public async Task<ActionResult<IEnumerable<AppointmentDto>>> GetUpcoming(int days = 14)
         {
+            var userId = User.GetUserId();
             var from = DateTime.UtcNow;
             var to = from.AddDays(days);
 
             return await _context.Appointments
+                .Where(x => x.UserId == userId)
                 .Where(a => a.StartsAt >= from && a.StartsAt <= to)
                 .OrderBy(a => a.StartsAt)
                 .Select(x => x.ToDto())
