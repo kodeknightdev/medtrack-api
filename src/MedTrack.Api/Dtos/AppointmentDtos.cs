@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace MedTrack.Api.Dtos
@@ -14,7 +15,7 @@ namespace MedTrack.Api.Dtos
         public string Notes { get; set; }
     }
 
-    public class SaveAppointmentRequest
+    public class SaveAppointmentRequest : IValidatableObject
     {
         [Required]
         [StringLength(150)]
@@ -31,5 +32,15 @@ namespace MedTrack.Api.Dtos
 
         [StringLength(1000)]
         public string Notes { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (EndsAt <= StartsAt)
+            {
+                yield return new ValidationResult(
+                    "Appointment must end after it starts.",
+                    new[] { nameof(EndsAt) });
+            }
+        }
     }
 }
