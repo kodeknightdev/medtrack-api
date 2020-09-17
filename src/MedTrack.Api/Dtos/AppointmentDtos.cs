@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace MedTrack.Api.Dtos
 {
@@ -15,15 +16,20 @@ namespace MedTrack.Api.Dtos
 
     public class SaveAppointmentRequest
     {
+        [Required]
+        [StringLength(150)]
         public string Title { get; set; }
 
+        [StringLength(100)]
         public string Provider { get; set; }
 
+        [StringLength(200)]
         public string Location { get; set; }
 
         public DateTime StartsAt { get; set; }
         public DateTime EndsAt { get; set; }
 
+        [StringLength(1000)]
         public string Notes { get; set; }
     }
 }
