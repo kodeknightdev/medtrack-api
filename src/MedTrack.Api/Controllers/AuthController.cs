@@ -27,14 +27,15 @@ namespace MedTrack.Api.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            var email = request.Email.Trim().ToLowerInvariant();
+            if (await _context.Users.AnyAsync(u => u.Email == email))
             {
                 return Conflict(new { message = "An account with that email already exists." });
             }
 
             var user = new User
             {
-                Email = request.Email,
+                Email = email,
                 PasswordHash = _hasher.Hash(request.Password),
                 CreatedAt = DateTime.UtcNow
             };
@@ -47,7 +48,8 @@ namespace MedTrack.Api.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == request.Email);
+            var email = request.Email.Trim().ToLowerInvariant();
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
             if (user == null || !_hasher.Verify(request.Password, user.PasswordHash))
             {
                 return Unauthorized();
