@@ -19,7 +19,7 @@ namespace MedTrack.Api.Dtos
         [StringLength(100)]
         public string Name { get; set; }
 
-        [Range(0, 10)]
+        [Range(1, 10)]
         public int Severity { get; set; }
 
         [StringLength(1000)]
