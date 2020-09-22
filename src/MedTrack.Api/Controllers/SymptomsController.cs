@@ -4,18 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using MedTrack.Api.Data;
 using MedTrack.Api.Dtos;
-using MedTrack.Api.Extensions;
 using MedTrack.Api.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedTrack.Api.Controllers
 {
-    [ApiController]
-    [Authorize]
     [Route("api/[controller]")]
-    public class SymptomsController : ControllerBase
+    public class SymptomsController : ApiControllerBase
     {
         private readonly MedTrackContext _context;
 
@@ -27,9 +23,8 @@ namespace MedTrack.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SymptomEntryDto>>> GetAll()
         {
-            var userId = User.GetUserId();
             return await _context.SymptomEntries
-                .Where(x => x.UserId == userId)
+                .Where(x => x.UserId == CurrentUserId)
                 .OrderByDescending(x => x.OccurredAt)
                 .Select(x => x.ToDto())
                 .ToListAsync();
@@ -38,8 +33,7 @@ namespace MedTrack.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<SymptomEntryDto>> Get(int id)
         {
-            var userId = User.GetUserId();
-            var entry = await _context.SymptomEntries.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
+            var entry = await _context.SymptomEntries.Where(x => x.UserId == CurrentUserId).FirstOrDefaultAsync(x => x.Id == id);
             if (entry == null)
             {
                 return NotFound();
@@ -54,7 +48,7 @@ namespace MedTrack.Api.Controllers
             var entry = new SymptomEntry
             {
                 CreatedAt = DateTime.UtcNow,
-                UserId = userId
+                UserId = CurrentUserId
             };
             request.ApplyTo(entry);
 
@@ -67,8 +61,7 @@ namespace MedTrack.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, SaveSymptomEntryRequest request)
         {
-            var userId = User.GetUserId();
-            var existing = await _context.SymptomEntries.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
+            var existing = await _context.SymptomEntries.Where(x => x.UserId == CurrentUserId).FirstOrDefaultAsync(x => x.Id == id);
             if (existing == null)
             {
                 return NotFound();
@@ -83,8 +76,7 @@ namespace MedTrack.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var userId = User.GetUserId();
-            var entry = await _context.SymptomEntries.Where(x => x.UserId == userId).FirstOrDefaultAsync(x => x.Id == id);
+            var entry = await _context.SymptomEntries.Where(x => x.UserId == CurrentUserId).FirstOrDefaultAsync(x => x.Id == id);
             if (entry == null)
             {
                 return NotFound();
