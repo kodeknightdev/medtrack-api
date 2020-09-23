@@ -21,11 +21,14 @@ namespace MedTrack.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SymptomEntryDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<SymptomEntryDto>>> GetAll(int skip = 0, int take = 50)
         {
+            take = Math.Clamp(take, 1, 200);
             return await _context.SymptomEntries
                 .Where(x => x.UserId == CurrentUserId)
                 .OrderByDescending(x => x.OccurredAt)
+                .Skip(skip)
+                .Take(take)
                 .Select(x => x.ToDto())
                 .ToListAsync();
         }
