@@ -70,6 +70,8 @@ namespace MedTrack.Api.Controllers
                 .Concat(appointments)
                 .Concat(medications)
                 .OrderByDescending(i => i.Date)
+                .ThenBy(i => i.Type)
+                .ThenBy(i => i.Id)
                 .ToList();
         }
     }
