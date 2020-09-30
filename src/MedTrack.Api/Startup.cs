@@ -62,6 +62,9 @@ namespace MedTrack.Api
                     };
                 });
 
+            services.AddHealthChecks()
+                .AddDbContextCheck<MedTrackContext>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MedTrack API", Version = "v1" });
@@ -109,6 +112,7 @@ namespace MedTrack.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
             });
         }
     }
