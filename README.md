@@ -29,3 +29,23 @@ dotnet test
 ```
 
 Controller tests use the EF Core in-memory provider, so no database is needed.
+
+## Endpoints
+
+All endpoints except `/api/auth/*` and `/health` need a bearer token.
+
+| Method | Route | Notes |
+| --- | --- | --- |
+| POST | `/api/auth/register` | returns a token |
+| POST | `/api/auth/login` | returns a token |
+| GET/POST | `/api/symptoms` | `?skip=&take=` paging on GET |
+| GET/PUT/DELETE | `/api/symptoms/{id}` | |
+| GET/POST | `/api/medications` | |
+| GET/PUT/DELETE | `/api/medications/{id}` | |
+| GET | `/api/medications/due` | reminders due today that haven't been taken |
+| POST | `/api/medications/{id}/taken` | |
+| GET/POST | `/api/appointments` | |
+| GET/PUT/DELETE | `/api/appointments/{id}` | |
+| GET | `/api/appointments/upcoming` | `?days=14` |
+| GET | `/api/timeline` | `?from=&to=` |
+| GET | `/health` | |
