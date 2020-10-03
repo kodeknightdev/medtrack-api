@@ -25,6 +25,7 @@ namespace MedTrack.Api.Data
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId);
+                entity.HasIndex(e => new { e.UserId, e.OccurredAt });
             });
 
             modelBuilder.Entity<Medication>(entity =>
