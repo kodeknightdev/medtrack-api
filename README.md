@@ -28,7 +28,7 @@ through an environment variable (`Jwt__Secret`) or user secrets.
 dotnet test
 ```
 
-Controller tests use the EF Core in-memory provider, so no database is needed.
+Controller tests use the EF Core in-memory provider, so no database is needed to run them.
 
 ## Endpoints
 
