@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MedTrack.Api.Controllers;
-using MedTrack.Api.Dtos;
 using MedTrack.Api.Models;
 using Xunit;
 
